@@ -12,6 +12,18 @@ bool soilsensor::read()
     sensor_pin3 = analogRead(sensorPin3);
     time_stamp = millis();
     return true;
+
+    if (isnan(sensor_pin1) || isnan(sensor_pin2) || isnan(sensor_pin3))
+    {
+        Serial.println("Something wrong with sensor!");
+        return false;
+    }
+    else
+    {
+        sensor_pin1 = sensorPin1;
+        sensor_pin2 = sensorPin2;
+        sensor_pin3 = sensorPin3;
+    }
 }
 float soilsensor::getSoilHumidPin1()
 {
