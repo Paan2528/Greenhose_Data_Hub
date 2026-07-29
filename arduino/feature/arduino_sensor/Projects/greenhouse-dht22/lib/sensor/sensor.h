@@ -1,5 +1,5 @@
-#ifndef DHT22PAIR_H
-#define DHT22PAIR_H
+#ifndef DHT11PAIR_H
+#define DHT11PAIR_H
 
 #include <Arduino.h>
 #include <DHT.h>
