@@ -18,12 +18,12 @@ struct  readsensors {
  fn create_database() -> Result<()> {
     let sensors = readsensors{
         getTime: 10.0,
-    getTempInside: 23.5,
-    getTempOutside: 12.4,
-    getHumidity: 23.0,
-    getSoilHumidPin1: 24.9,
-    getSoilHumidPin2: 68.0,
-    getSoilHumidPin3: 72.7
+        getTempInside: 23.5,
+        getTempOutside: 12.4,
+        getHumidity: 23.0,
+        getSoilHumidPin1: 24.9,
+        getSoilHumidPin2: 68.0,
+        getSoilHumidPin3: 72.7
     };
     let actuators = actuatorStatus{
         FanStatus: true,
@@ -47,15 +47,15 @@ struct  readsensors {
     
     conn.execute(
         "INSERT INTO greenhouse_data(
-        getTime,
-        getTempInside,
-        getTempOutside,
-        getHumidity,
-        getSoilHumidPin1,
-        getSoilHumidPin2,
-        getSoilHumidPin3,
-        FanStatus,
-        PumpStatus
+        date_time,
+        Temp_inside,
+        Temp_outside,
+        Humdi_inside,
+        Soil_Humdi1,
+        Soil_Humdi2,
+        Soil_Humdi3,
+        Fan_status,
+        Pump_status
         )VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9)",
         params![
         sensors.getTime,
