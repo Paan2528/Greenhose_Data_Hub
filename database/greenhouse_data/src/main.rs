@@ -1,77 +1,76 @@
- use rusqlite::{Connection, Result, params};
+use rusqlite::{Connection, Result, params};
+use std::fs::OpenOptions;
+use std::io::{BufRead, BufReader, Write};
+use std::time::Duration;
 
-struct  readsensors {
-    getTime: f32,
-    getTempInside: f32,
-    getTempOutside: f32,
-    getHumidity: f32,
-    getSoilHumidPin1: f32,
-    getSoilHumidPin2: f32,
-    getSoilHumidPin3: f32
- }
- struct actuatorStatus{
-    FanStatus: bool,
-    PumpStatus: bool 
-
- }
-
- fn create_database() -> Result<()> {
-    let sensors = readsensors{
-        getTime: 10.0,
-        getTempInside: 23.5,
-        getTempOutside: 12.4,
-        getHumidity: 23.0,
-        getSoilHumidPin1: 24.9,
-        getSoilHumidPin2: 68.0,
-        getSoilHumidPin3: 72.7
-    };
-    let actuators = actuatorStatus{
-        FanStatus: true,
-        PumpStatus: false
-    };
-    // creat the file
-    let conn = Connection::open("greenhouse_data.db")?;
-    //Creat a table named greenhouse data
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS greenhouse_data (
-        date_time TIMESTAMP,
-        Temp_inside FLOAT NOT NULL,
-        Temp_outside FLOAT NOT NULL,
-        Humdi_inside FLOAT NOT NULL,
-        Soil_Humdi1 FLOAT NOT NULL,
-        Soil_Humdi2 FLOAT NOT NULL, 
-        Soil_Humdi3 FLOAT NOT NULL,
-        Fan_status INTEGER NOT NULL,
-        Pump_status INTEGER NOT NULL)",[]) ?;
-
+fn main() {
     
-    conn.execute(
-        "INSERT INTO greenhouse_data(
-        date_time,
-        Temp_inside,
-        Temp_outside,
-        Humdi_inside,
-        Soil_Humdi1,
-        Soil_Humdi2,
-        Soil_Humdi3,
-        Fan_status,
-        Pump_status
-        )VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9)",
-        params![
-        sensors.getTime,
-        sensors.getTempInside,
-        sensors.getTempOutside,
-        sensors.getHumidity,
-        sensors.getSoilHumidPin1,
-        sensors.getSoilHumidPin2,
-        sensors.getSoilHumidPin3,
-        actuators.FanStatus,
-        actuators.PumpStatus
-        ])?;
-    
-    return Ok(());
+    let port_name = "  "; //check when connect with port
+    let baud_rate = 9600;
+    let csv_file_path = "greenhouse_dataHub";
 
- }
- fn main(){
-    create_database().unwrap();
- }
+    //Creat CSV. file for data recode
+    let mut file = OpenOptions::new()
+        .creat(true)
+        .append(true)
+        .open(csv_file_path)
+        .expect("Can't creat or open file!")
+
+    // Heat of CSV file or name of column
+    if file.metadata().map(|m| m.len() ==0).unwrap_or(false){
+        writeln!(file, "creat_at, tempIn, tempOut, humdiIn, humdiPlant1, humdiPlant2,humdiPlant3, fanStatus, pumpStatus")
+        .expect("weite not susses!")
+    }
+
+    //Connect with UART
+    let port = serialport::new(port_name, baud_rate)
+        .timeout(Duration::from_secs(3))
+        .open()
+        .expect("Can't open Serial port");
+    
+        // waiting for get the data
+
+    let mut reader = BufReader::new(port);
+    let mut line = String::new();
+    
+
+    loop{
+        line.clear();
+        if let Ok(bytes_read) = reader.read_line(&mut line){
+            if bytes_read > 0 {
+                let trimmed = line.trim();
+                let parts: Vec<&str> = trimmed.split(",").collect();
+
+                //check that get data 8 column
+                if parts.len() == 3 {
+                    let tempIn_parsed = parts[0].parse::<f64>();
+                    let tempOut_parsed = parts[0].parse::<f64>();
+                    let humdiIn_parsed = parts[0].parse::<f64>();
+                    let humdiPlant1_parsed = parts[0].parse::<i32>();
+                    let humdiPlant2_parsed = parts[0].parse::<i32>();
+                    let humdiPlant3_parsed = parts[0].parse::<i32>();
+                    let fanStatus_parsed = parts[0].parse::<i32>();
+                    let pumpStatus_parsed = parts[0].parse::<i32>();
+
+                    if let (Ok(tempIn),Ok(tempOut), Ok(humdiIn), Ok(humdiPlant1), Ok(humdiPlant2), Ok(humdiPlant3), Ok(fanStatus), Ok(pumpStatus)){
+                        // Timestamp ISO 8601
+                        let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+                        // Creat new CSV
+                        let csv_row = format!("{},{},{},{},{},{},{},{},{} \n", timestamp,tempIn, tempOut, humdiIn, humdiPlant1, humdiPlant2, humdiPlant3, fanStatus, pumpStatus)
+                        //save to file
+                        if let Err(e) = file.write_all(csv_row.as_bytes()){
+                            eprintln!("Something wrong with save file!")
+                        } else {
+                            print!(" [Saved] -> {}", csv_row);
+                        }
+                    } else {
+                        eprintln("data is't correct!");
+                    }              
+                                    
+                }                   
+            }
+        }    
+    } 
+};
+   
+
