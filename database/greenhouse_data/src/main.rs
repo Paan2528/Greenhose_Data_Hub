@@ -5,7 +5,7 @@ use std::time::Duration;
 
 fn main() {
     
-    let port_name = "  "; //check when connect with port
+    let port_name = "/dev/ttyACM0"; //check when connect with port
     let baud_rate = 9600;
     let csv_file_path = "greenhouse_dataHub";
 
@@ -31,10 +31,12 @@ fn main() {
         // waiting for get the data
 
     let mut reader = BufReader::new(port);
-    let mut line = String::new();
+    
     
 
     loop{
+
+        let mut line = String::new();
         line.clear();
         if let Ok(bytes_read) = reader.read_line(&mut line){
             if bytes_read > 0 {
@@ -42,17 +44,27 @@ fn main() {
                 let parts: Vec<&str> = trimmed.split(",").collect();
 
                 //check that get data 8 column
-                if parts.len() == 3 {
+                if parts.len() == 8 {
                     let tempIn_parsed = parts[0].parse::<f64>();
-                    let tempOut_parsed = parts[0].parse::<f64>();
-                    let humdiIn_parsed = parts[0].parse::<f64>();
-                    let humdiPlant1_parsed = parts[0].parse::<i32>();
-                    let humdiPlant2_parsed = parts[0].parse::<i32>();
-                    let humdiPlant3_parsed = parts[0].parse::<i32>();
-                    let fanStatus_parsed = parts[0].parse::<i32>();
-                    let pumpStatus_parsed = parts[0].parse::<i32>();
+                    let tempOut_parsed = parts[1].parse::<f64>();
+                    let humdiIn_parsed = parts[2].parse::<f64>();
+                    let humdiPlant1_parsed = parts[3].parse::<i64>();
+                    let humdiPlant2_parsed = parts[4].parse::<i64>();
+                    let humdiPlant3_parsed = parts[5].parse::<i64>();
+                    let fanStatus_parsed = parts[6].parse::<i32>();
+                    let pumpStatus_parsed = parts[7].parse::<i32>();
 
-                    if let (Ok(tempIn),Ok(tempOut), Ok(humdiIn), Ok(humdiPlant1), Ok(humdiPlant2), Ok(humdiPlant3), Ok(fanStatus), Ok(pumpStatus)){
+                    if let (Ok(tempIn),Ok(tempOut), Ok(humdiIn), Ok(humdiPlant1), Ok(humdiPlant2), Ok(humdiPlant3), Ok(fanStatus), Ok(pumpStatus))=
+                    (
+                        tempIn_parsed,
+                        tempOut_parsed
+                        humdiIn_parsed,
+                        humdiPlant1_parsed,
+                        humdiPlant2_parsed,
+                        humdiPlant3_parsed,
+                        fanStatus,
+                        pumpStatus_parsed
+                    ){
                         // Timestamp ISO 8601
                         let timestamp = Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
                         // Creat new CSV
