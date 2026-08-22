@@ -50,7 +50,7 @@ Greenhouse GUI (C++ / Qt)
 
 ## Hardware / Wiring
 
-![Wiring diagram](docs/wiring_diagram.jpg)
+![Wiring diagram](https://github.com/Paan2528/Greenhose_Data_Hub/blob/Raspberry_Pi/IMG_0549.JPG)
 
 | Signal | Connection |
 |---|---|
