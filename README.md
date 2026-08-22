@@ -1,6 +1,4 @@
-
-
-## Greenhouse Data Hub 🌱
+# Greenhouse Data Hub
 
 Semester project for **Programming within Operating Systems** and **Microcontroller Programming** (SAE Institute Hamburg).
 
@@ -49,6 +47,22 @@ Greenhouse GUI (C++ / Qt)
 | `database` | Database/logging components |
 | `workflow.pdf` | Workflow diagram of the system |
 | `Greenhouse_DataHub_Pitch.pptx.pdf` | Project pitch presentation |
+
+## Hardware / Wiring
+
+![Wiring diagram](docs/wiring_diagram.jpg)
+
+| Signal | Connection |
+|---|---|
+| Soil moisture (x3) | Arduino Pin 4 / 5 / 6 |
+| DHT11 (indoor + outdoor temp/humidity) | Arduino Pin 12 / 13 |
+| Fan | Arduino Pin 7 → Relay |
+| Pump | Arduino Pin 2 → Relay |
+| Arduino ↔ Raspberry Pi | USB |
+| VCC / 5V | Power supply |
+| GND | Common ground |
+
+The Raspberry Pi also drives a touchscreen display for the GUI.
 
 ## Data Format
 
